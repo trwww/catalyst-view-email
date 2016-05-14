@@ -33,6 +33,28 @@ sub email : Global('email') {
     }
 }
 
+sub email_smtp_utf8 : Global('email_smtp_utf8') {
+    my ($self, $c, @args) = @_;
+
+    my $chars = decode('utf-8', "✔ ✈ ✉");
+
+    $c->stash->{email} = {
+        to      => 'test-email@example.com',
+        from    => 'no-reply@example.com',
+        subject => 'Email Test',
+        body    => "Email Sent chars: $chars"
+    };
+
+    $c->forward('TestApp::View::EmailSMTP');
+
+    if ( scalar( @{ $c->error } ) ) {
+        $c->res->status(500);
+        $c->res->body('Email Failed');
+    } else {
+        $c->res->body('Plain Email Ok');
+    }
+}
+
 sub email_app_config : Global('email_app_config') {
     my ($self, $c, @args) = @_;
 
